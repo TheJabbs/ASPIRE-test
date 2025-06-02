@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model creator {
+  creatorId   Int       @id @default(autoincrement())
+  creatorName String
+  dob         DateTime?
+  media       media[]
+}
+
+model media {
+  mediaId     Int                       @id @default(autoincrement())
+  creatorId   Int
+  typeId      Int
+  mediaName   String
+  description Unsupported("varch(250)")
+  released    DateTime?                 @default(dbgenerated("current_date"))
+  mediaType   mediaType                 @relation(fields: [typeId], references: [typeId], onDelete: NoAction, onUpdate: NoAction)
+  creator     creator                   @relation(fields: [creatorId], references: [creatorId], onDelete: NoAction, onUpdate: NoAction)
+  mediaStatus mediaStatus[]
+}
+
+model mediaType {
+  typeId  Int     @id @default(autoincrement())
+  typeNme String
+  media   media[]
+}
+
+model mediaStatus {
+  mediaStatus Int    @id @default(autoincrement())
+  userId      Int
+  mediaId     Int
+  mark        String
+  media       media  @relation(fields: [mediaId], references: [mediaId], onDelete: NoAction, onUpdate: NoAction)
+  users       users  @relation(fields: [userId], references: [userid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  userid      Int           @id @default(autoincrement())
+  email       String
+  password    String
+  fullName    String
+  mediaStatus mediaStatus[]
+}
